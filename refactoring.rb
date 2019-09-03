@@ -56,4 +56,24 @@ class Customer
 		result += "You earned #{frequent_renter_points} frequent renter points"
 		result
 	end
-end 
+end
+
+movie1 = Movie.new("Jumanjhi", 0)
+movie2 = Movie.new("Avengers", 1)
+movie3 = Movie.new("Secret life of pet", 2)
+
+first_rental = Rental.new(movie1, 10)
+second_rental = Rental.new(movie2, 15)
+third_rental = Rental.new(movie3, 5)
+
+john = Customer.new("John")
+
+john.add_rental(first_rental)
+# puts john.statement
+
+john.add_rental(second_rental)
+# puts john.statement
+
+
+john.add_rental(third_rental)
+puts john.statement
