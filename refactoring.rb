@@ -14,6 +14,20 @@ class Rental
 	def initialize(movie, days_rented)
 		@movie, @days_rented = movie, days_rented
 	end
+	def charge()
+		result = 0
+		case movie.price_code
+		when Movie::REGULAR
+			result += 2
+			result += (days_rented - 2) * 1.5 if days_rented > 2
+		when Movie::NEW_RELEASE
+			result += days_rented * 3
+		when Movie::CHILDRENS
+			result += 1.5
+			result += (days_rented - 3) * 1.5 if days_rented > 3
+		end
+		result
+	end
 end
 
 class Customer
@@ -29,7 +43,7 @@ class Customer
 		total_amount, frequent_renter_points = 0, 0
 		result = "Rental Record for #{@name}\n"
 		@rentals.each do |element|
-			this_amount = amount_for(element)
+			this_amount = element.charge()
 			# add frequent renter points
 			frequent_renter_points += 1
 			# add bonus for a two day new release rental
@@ -45,20 +59,7 @@ class Customer
 		result += "You earned #{frequent_renter_points} frequent renter points"
 		result
 	end
-	def amount_for(element)
-		this_amount = 0
-		case element.movie.price_code
-		when Movie::REGULAR
-			this_amount += 2
-			this_amount += (element.days_rented - 2) * 1.5 if element.days_rented > 2
-		when Movie::NEW_RELEASE
-			this_amount += element.days_rented * 3
-		when Movie::CHILDRENS
-			this_amount += 1.5
-			this_amount += (element.days_rented - 3) * 1.5 if element.days_rented > 3
-		end
-		this_amount
-	end
+	
 end
 
 
