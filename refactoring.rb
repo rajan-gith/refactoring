@@ -29,18 +29,7 @@ class Customer
 		total_amount, frequent_renter_points = 0, 0
 		result = "Rental Record for #{@name}\n"
 		@rentals.each do |element|
-			this_amount = 0
-			# determine amounts for each line
-			case element.movie.price_code
-			when Movie::REGULAR
-				this_amount += 2
-				this_amount += (element.days_rented - 2) * 1.5 if element.days_rented > 2
-			when Movie::NEW_RELEASE
-				this_amount += element.days_rented * 3
-			when Movie::CHILDRENS
-				this_amount += 1.5
-				this_amount += (element.days_rented - 3) * 1.5 if element.days_rented > 3
-			end
+			this_amount = amount_for(element)
 			# add frequent renter points
 			frequent_renter_points += 1
 			# add bonus for a two day new release rental
@@ -56,24 +45,62 @@ class Customer
 		result += "You earned #{frequent_renter_points} frequent renter points"
 		result
 	end
+	def amount_for(element)
+		this_amount = 0
+		case element.movie.price_code
+		when Movie::REGULAR
+			this_amount += 2
+			this_amount += (element.days_rented - 2) * 1.5 if element.days_rented > 2
+		when Movie::NEW_RELEASE
+			this_amount += element.days_rented * 3
+		when Movie::CHILDRENS
+			this_amount += 1.5
+			this_amount += (element.days_rented - 3) * 1.5 if element.days_rented > 3
+		end
+		this_amount
+	end
 end
 
-movie1 = Movie.new("Jumanjhi", 0)
-movie2 = Movie.new("Avengers", 1)
-movie3 = Movie.new("Secret life of pet", 2)
-
-first_rental = Rental.new(movie1, 10)
-second_rental = Rental.new(movie2, 15)
-third_rental = Rental.new(movie3, 5)
-
-john = Customer.new("John")
-
-john.add_rental(first_rental)
-# puts john.statement
-
-john.add_rental(second_rental)
-# puts john.statement
 
 
-john.add_rental(third_rental)
-puts john.statement
+
+
+
+require "test/unit"
+class VideoRentalTest < Test::Unit::TestCase
+
+	def test_statement
+		customer = Customer.new('Chap')
+		movie1 = Movie.new('Joe Versus the Volcano', Movie::REGULAR)
+		rental1 = Rental.new(movie1, 5)
+		customer.add_rental(rental1)
+
+		assert_equal "Rental Record for Chap\n"          +
+								 "\tJoe Versus the Volcano\t6.5\n"   +
+								 "Amount owed is 6.5\n"              +
+								 "You earned 1 frequent renter points", customer.statement
+
+
+		movie2 = Movie.new('Sleepless in Seattle', Movie::CHILDRENS)
+		rental2 = Rental.new(movie2, 1)
+		customer.add_rental(rental2)
+
+		assert_equal "Rental Record for Chap\n"          +
+								 "\tJoe Versus the Volcano\t6.5\n"   +
+								 "\tSleepless in Seattle\t1.5\n"     +
+								 "Amount owed is 8.0\n"              +
+								 "You earned 2 frequent renter points", customer.statement
+
+
+		movie3 = Movie.new('You\'ve Got Mail', Movie::NEW_RELEASE)
+		rental3 = Rental.new(movie3, 15)
+		customer.add_rental(rental3)
+
+		assert_equal "Rental Record for Chap\n"          +
+								 "\tJoe Versus the Volcano\t6.5\n"   +
+								 "\tSleepless in Seattle\t1.5\n"     +
+								 "\tYou've Got Mail\t45\n"           +
+								 "Amount owed is 53.0\n"             +
+								 "You earned 4 frequent renter points", customer.statement
+	end
+end 
