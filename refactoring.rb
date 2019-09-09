@@ -7,16 +7,9 @@ class Movie
 	def initialize(title, price_code)
 		@title, @price_code = title, price_code
 	end
-end
-
-class Rental
-	attr_reader :movie, :days_rented
-	def initialize(movie, days_rented)
-		@movie, @days_rented = movie, days_rented
-	end
-	def charge()
+	def charge(days_rented)
 		result = 0
-		case movie.price_code
+		case price_code
 		when Movie::REGULAR
 			result += 2
 			result += (days_rented - 2) * 1.5 if days_rented > 2
@@ -28,8 +21,21 @@ class Rental
 		end
 		result
 	end
+	def frequent_renter_points(days_rented)
+		(price_code == Movie::NEW_RELEASE && days_rented > 1) ? 2 : 1
+	end
+end
+
+class Rental
+	attr_reader :movie, :days_rented
+	def initialize(movie, days_rented)
+		@movie, @days_rented = movie, days_rented
+	end
+	def charge()
+		movie.charge(days_rented)
+	end
 	def frequent_renter_points
-		(movie.price_code == Movie::NEW_RELEASE && days_rented > 1) ? 2 : 1
+		movie.frequent_renter_points(days_rented)
 	end
 end
 
